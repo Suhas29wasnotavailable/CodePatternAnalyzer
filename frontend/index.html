@@ -261,8 +261,31 @@ async function analyzeCode() {
         console.error(error);
         btn.innerHTML = originalHTML;
         btn.disabled = false;
-        alert("Backend error. Is FastAPI running?\n\nRun: uvicorn main:app --reload");
+        showBackendNotice();
     }
+}
+
+function showBackendNotice() {
+    if (document.getElementById("backendNotice")) return;
+    const el = document.createElement("div");
+    el.id = "backendNotice";
+    el.style.cssText = [
+        "position:fixed", "left:50%", "bottom:24px", "transform:translateX(-50%)",
+        "z-index:9999", "max-width:min(680px,calc(100vw - 32px))",
+        "padding:16px 20px", "border:1px solid #3FB950", "border-radius:10px",
+        "background:#0D1117", "box-shadow:0 8px 32px rgba(0,0,0,.6)",
+        "color:#C9D1D9", "font-size:14px", "line-height:1.6",
+        "font-family:ui-monospace,SFMono-Regular,Menlo,monospace"
+    ].join(";");
+    el.innerHTML =
+        '<strong style="color:#56D364">The analysis service is offline right now.</strong><br>' +
+        'This page is the front-end &mdash; the classifier runs as a separate FastAPI service. ' +
+        'You can run the whole project locally in two commands: see the ' +
+        '<a href="https://github.com/Suhas29wasnotavailable/CodePatternAnalyzer" target="_blank" ' +
+        'style="color:#56D364">main repository</a>.' +
+        '<span style="float:right;cursor:pointer;color:#8B949E;padding-left:12px" ' +
+        'onclick="this.parentNode.remove()">&times;</span>';
+    document.body.appendChild(el);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
