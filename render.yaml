@@ -1,0 +1,17 @@
+# Render blueprint — redeploys the CodePatternAnalyzer API.
+#
+#   render.com -> New -> Blueprint -> connect this repo -> Apply
+#
+# Afterwards, copy the service URL Render gives you into API_BASE at the top
+# of frontend/index.html (and the same line in CodePatternAnalyzer-demo).
+services:
+  - type: web
+    name: codepatternanalyzer-api
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.10.13"
