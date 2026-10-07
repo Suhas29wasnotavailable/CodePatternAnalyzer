@@ -81,8 +81,11 @@ pip install fastapi uvicorn scikit-learn numpy
 uvicorn main:app --reload
 ```
 
-The API comes up on `http://127.0.0.1:8000`; interactive docs at `/docs`. Open
-`frontend/index.html` for the UI.
+The API comes up on `http://127.0.0.1:8000`, with interactive docs at `/docs`.
+
+The browser UI lives in its own repository —
+**[CodePatternAnalyzer-demo](https://github.com/Suhas29wasnotavailable/CodePatternAnalyzer-demo)** —
+so this repo stays focused on the model and the API.
 
 ## Known limitations
 
