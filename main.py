@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 import os
 import ast
-import re
 
 from sklearn.neural_network import MLPClassifier
 from sklearn.feature_extraction.text import CountVectorizer
@@ -33,7 +32,7 @@ vectorizer = CountVectorizer(
 def extract_structural_features(code: str):
     try:
         tree = ast.parse(code)
-    except:
+    except (SyntaxError, ValueError):
         return np.zeros(6), {}
 
     function_count = 0
@@ -81,23 +80,35 @@ def extract_structural_features(code: str):
 # LOAD DATASET
 # -----------------------------
 def load_dataset():
+    """Read data/<author>/*.py.
+
+    Only .py files count as samples, and an author folder with none is skipped.
+    Placeholder folders (author6..author10, which hold just a .gitkeep) used to
+    become five extra "authors" trained on a single empty file each, so the
+    model could answer "author8" for real code. Everything is sorted so that
+    training, and therefore every prediction, is the same on every machine.
+    """
     texts = []
     labels = []
 
     base_path = "data"
 
-    for author in os.listdir(base_path):
+    for author in sorted(os.listdir(base_path)):
         author_path = os.path.join(base_path, author)
+        if not os.path.isdir(author_path):
+            continue
 
-        if os.path.isdir(author_path):
-            for file in os.listdir(author_path):
-                try:
-                    with open(os.path.join(author_path, file), "r", encoding="utf-8") as f:
-                        code = f.read()
-                        texts.append(code)
-                        labels.append(author)
-                except:
-                    continue
+        for file in sorted(os.listdir(author_path)):
+            if not file.endswith(".py"):
+                continue
+            try:
+                with open(os.path.join(author_path, file), "r", encoding="utf-8") as f:
+                    code = f.read()
+            except (OSError, UnicodeDecodeError):
+                continue
+            if code.strip():
+                texts.append(code)
+                labels.append(author)
 
     return texts, labels
 
@@ -163,6 +174,4 @@ def analyze_code(data: dict):
         "top_authors": top_authors,
         "metrics": metrics,
         "detected_language": "Python",
-        "ai_prediction": "Likely Human",
-        "ai_confidence": 0.85
     }
