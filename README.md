@@ -96,8 +96,6 @@ Worth being upfront about, since they shape how far the results can be trusted:
   thing to add.
 - **Small corpus.** 10 files per author is enough to demonstrate the method, not enough to
   make the classifier robust to unfamiliar code.
-- **The `ai_prediction` field is a placeholder.** It returns a fixed value today and is not
-  a real human-vs-AI detector.
 - **Python only.** The AST features depend on `ast.parse`.
 
 ## Roadmap
