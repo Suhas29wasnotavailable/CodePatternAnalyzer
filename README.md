@@ -87,21 +87,46 @@ The browser UI lives in its own repository —
 **[CodePatternAnalyzer-demo](https://github.com/Suhas29wasnotavailable/CodePatternAnalyzer-demo)** —
 so this repo stays focused on the model and the API.
 
+## How accurate is it?
+
+Measured with stratified 5-fold cross-validation (`python evaluate.py`): in each fold the n-gram
+vocabulary and the MLP are fitted on 40 files and scored on the 10 they have not seen.
+
+| | |
+|:--|:--|
+| **Accuracy on unseen files** | **76.0%** ± 8.0% across folds |
+| Chance (always guess the commonest author) | 20.0% |
+
+```
+confusion (rows: true author, columns: predicted)
+                         0   1   2   3   4
+            Kamuyu104 0  10   0   0   0   0
+           Seanforfun 1   6   4   0   0   0
+TheAlgorithmsTeam-git 2   0   0   9   1   0
+                haoel 3   0   1   0   8   1
+      youngyangyang04 4   1   2   0   0   7
+```
+
+The weak spot is specific: **6 of Seanforfun's 10 files are attributed to Kamuyu104**, while
+Kamuyu104's own files are never missed. The model has learned something that both authors share,
+and with 10 files each it cannot tell them apart. That is the first thing a larger corpus should
+fix.
+
 ## Known limitations
 
 Worth being upfront about, since they shape how far the results can be trusted:
 
-- **No held-out test split.** The model currently fits on all 50 files, so it has no honest
-  accuracy number attached. A stratified train/test split with cross-validation is the next
-  thing to add.
+- **The served model is not the evaluated one.** The API fits on all 50 files; the accuracy
+  above comes from refitting on four fifths at a time, which is the standard estimate of how the
+  full model generalises, not a measurement of it.
 - **Small corpus.** 10 files per author is enough to demonstrate the method, not enough to
   make the classifier robust to unfamiliar code.
 - **Python only.** The AST features depend on `ast.parse`.
 
 ## Roadmap
 
-- [ ] Train/test split and reported cross-validated accuracy
-- [ ] Confusion matrix over the 5 authors
+- [x] Train/test split and reported cross-validated accuracy
+- [x] Confusion matrix over the 5 authors
 - [ ] Widen the corpus — more authors, more files each
-- [ ] Replace the stubbed AI-detection field with a real model, or drop it
+- [x] Replace the stubbed AI-detection field with a real model, or drop it (dropped)
 - [ ] Persist the fitted model instead of retraining on every cold start
